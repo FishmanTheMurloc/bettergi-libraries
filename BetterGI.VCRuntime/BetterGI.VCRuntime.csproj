@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <Version>14.44.35208.0</Version>
+    <Authors>huiyadanli</Authors>
+    <Description>Visual C++ 2015/2017/2019/2022 Redistributable packed into a NuGet package. Contains vcruntime140*.dll and msvcp140*.dll.(14.44.35208.0|x64) </Description>
+    <PackageProjectUrl>https://github.com/babalae/bettergi-libraries</PackageProjectUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="runtimes\win-x64\native\*.dll" Pack="true" PackagePath="runtimes/win-x64/native" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="runtimes\win-x64\native\" />
+  </ItemGroup>
+</Project>
