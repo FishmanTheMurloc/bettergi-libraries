@@ -1,0 +1,11 @@
+[
+    {
+        "LayerId": "MapBack",
+        "Floor": 0,
+        "Scale": 1,
+        "Name": "提瓦特",
+        "Left": 12288.0,
+        "Top": 6144.0,
+        "IsOverSize": true
+    }
+]
