@@ -1,0 +1,33 @@
+name: 发布 BetterGI.Assets 到 NuGet
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'BetterGI.Assets/**'
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  build-and-publish:
+    runs-on: windows-latest
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v3
+
+    - name: 设置 .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+
+    - name: 还原依赖
+      run: dotnet restore BetterGI.Assets\BetterGI.Assets.csproj
+      
+    - name: 构建项目
+      run: dotnet build BetterGI.Assets\BetterGI.Assets.csproj --configuration Release --no-restore
+
+    - name: 创建 NuGet 包
+      run: dotnet pack BetterGI.Assets\BetterGI.Assets.csproj --configuration Release --no-build --output .\nupkgs
+
+    - name: 发布到 NuGet
+      run: dotnet nuget push .\nupkgs\*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
