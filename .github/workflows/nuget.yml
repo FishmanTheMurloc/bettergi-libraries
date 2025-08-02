@@ -1,16 +1,44 @@
-name: 发布 BetterGI.Assets 到 NuGet
+name: 发布到 NuGet
 
 on:
   push:
     branches: [ main ]
     paths:
-      - 'BetterGI.Assets/**'
+      - 'BetterGI.Assets.Map/**'
+      - 'BetterGI.Assets.Model/**'
+      - 'BetterGI.Assets.Other/**'
   workflow_dispatch:  # 允许手动触发
 
 jobs:
-  build-and-publish:
-    runs-on: windows-latest
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      map-changed: ${{ steps.changes.outputs.map }}
+      model-changed: ${{ steps.changes.outputs.model }}
+      other-changed: ${{ steps.changes.outputs.other }}
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: 检测变更
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            map:
+              - 'BetterGI.Assets.Map/**'
+            model:
+              - 'BetterGI.Assets.Model/**'
+            other:
+              - 'BetterGI.Assets.Other/**'
 
+  build-and-publish-map:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.map-changed == 'true'
+    runs-on: windows-latest
+    
     steps:
     - name: 检出代码
       uses: actions/checkout@v3
@@ -21,13 +49,65 @@ jobs:
         dotnet-version: 8.0.x
 
     - name: 还原依赖
-      run: dotnet restore BetterGI.Assets\BetterGI.Assets.csproj
+      run: dotnet restore BetterGI.Assets.Map\BetterGI.Assets.Map.csproj
       
     - name: 构建项目
-      run: dotnet build BetterGI.Assets\BetterGI.Assets.csproj --configuration Release --no-restore
+      run: dotnet build BetterGI.Assets.Map\BetterGI.Assets.Map.csproj --configuration Release --no-restore
 
     - name: 创建 NuGet 包
-      run: dotnet pack BetterGI.Assets\BetterGI.Assets.csproj --configuration Release --no-build --output .\nupkgs
+      run: dotnet pack BetterGI.Assets.Map\BetterGI.Assets.Map.csproj --configuration Release --no-build --output .\nupkgs
+
+    - name: 发布到 NuGet
+      run: dotnet nuget push .\nupkgs\*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+  build-and-publish-model:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.model-changed == 'true'
+    runs-on: windows-latest
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v3
+
+    - name: 设置 .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+
+    - name: 还原依赖
+      run: dotnet restore BetterGI.Assets.Model\BetterGI.Assets.Model.csproj
+      
+    - name: 构建项目
+      run: dotnet build BetterGI.Assets.Model\BetterGI.Assets.Model.csproj --configuration Release --no-restore
+
+    - name: 创建 NuGet 包
+      run: dotnet pack BetterGI.Assets.Model\BetterGI.Assets.Model.csproj --configuration Release --no-build --output .\nupkgs
+
+    - name: 发布到 NuGet
+      run: dotnet nuget push .\nupkgs\*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+  build-and-publish-other:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.other-changed == 'true'
+    runs-on: windows-latest
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v3
+
+    - name: 设置 .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+
+    - name: 还原依赖
+      run: dotnet restore BetterGI.Assets.Other\BetterGI.Assets.Other.csproj
+      
+    - name: 构建项目
+      run: dotnet build BetterGI.Assets.Other\BetterGI.Assets.Other.csproj --configuration Release --no-restore
+
+    - name: 创建 NuGet 包
+      run: dotnet pack BetterGI.Assets.Other\BetterGI.Assets.Other.csproj --configuration Release --no-build --output .\nupkgs
 
     - name: 发布到 NuGet
       run: dotnet nuget push .\nupkgs\*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
