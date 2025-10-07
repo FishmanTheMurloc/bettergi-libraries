@@ -175,9 +175,9 @@
         "Floor": -1,
         "Name": "地下研究所",
         "LayerId": "LayeredMap_3701501",
-        "Scale": 3,
-        "Left": 10324.5,
-        "Top": 3406.0
+        "Scale": 2,
+        "Left": 10348.0,
+        "Top": 3429.5
     },
     {
         "LayerGroupId": "37016",
